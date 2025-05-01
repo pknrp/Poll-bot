@@ -4,11 +4,11 @@ from flask import Flask
 from threading import Thread
 import logging
 
-# Bot Token और Owner/Group ID भरें
-BOT_TOKEN = "7343225665:AAFgk0-IV8w-wTzII9qRy7Nde8mPu0awpts"
+# Bot Token और Owner Chat ID भरें
+BOT_TOKEN = "7343225665:AAFezP5GGyjDo4-jjYCORmc3j0t7WjwXLrY"
 OWNER_CHAT_ID = -1002105439688  # Group या Personal Chat ID
 
-# Flask for uptime
+# Flask app to keep bot alive (Render.com/uptime tools)
 app = Flask(__name__)
 
 @app.route('/')
@@ -30,6 +30,24 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Question\nOption1\nOption2✅\nOption3\nOption4\nEx: Explanation (optional)\n\n"
         "Separate questions by blank lines."
     )
+
+# /help command
+async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        "Quiz Bot Features:\n\n"
+        "1. Send questions like:\n"
+        "Question\nOption1\nOption2✅\nOption3\nOption4\nEx: Explanation\n\n"
+        "2. Send multiple questions together using blank lines.\n"
+        "3. Correct option should have ✅\n"
+        "4. Optional explanation starts with 'Ex:'\n"
+        "5. All quizzes will be auto-posted to group too.\n"
+        "6. '@Quiz_Smart' tag is added automatically.\n\n"
+        "Use /owner to see magic!"
+    )
+
+# /owner command
+async def owner_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Hey baby how are u..🥰")
 
 # Process a single quiz block
 async def process_single_question(update: Update, context: ContextTypes.DEFAULT_TYPE, block: str):
@@ -57,6 +75,7 @@ async def process_single_question(update: Update, context: ContextTypes.DEFAULT_
 
     explanation = explanation + " @Quiz_Smart" if explanation else "@Quiz_Smart"
 
+    # Send to sender
     await update.message.reply_poll(
         question=question,
         options=options,
@@ -66,6 +85,7 @@ async def process_single_question(update: Update, context: ContextTypes.DEFAULT_
         is_anonymous=True
     )
 
+    # Also send to group/owner
     try:
         await context.bot.send_poll(
             chat_id=OWNER_CHAT_ID,
@@ -79,7 +99,7 @@ async def process_single_question(update: Update, context: ContextTypes.DEFAULT_
     except Exception as e:
         print("Error sending to owner:", e)
 
-# Multiple question handler
+# Handler for text messages
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not update.message or not update.message.text:
         return
@@ -87,12 +107,16 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     for block in blocks:
         await process_single_question(update, context, block)
 
-# Bot Starter
+# Run the bot
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     keep_alive()
 
     app_bot = ApplicationBuilder().token(BOT_TOKEN).build()
+
     app_bot.add_handler(CommandHandler("start", start))
+    app_bot.add_handler(CommandHandler("help", help_command))
+    app_bot.add_handler(CommandHandler("owner", owner_command))
     app_bot.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+
     app_bot.run_polling()
