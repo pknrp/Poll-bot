@@ -8,7 +8,7 @@ import logging
 BOT_TOKEN = "7839179631:AAHOVGCumtTpFfHLglOgvQya9Ha0pSZFku0"
 OWNER_CHAT_ID = -1002105439688  # Group या Personal Chat ID
 
-# Flask app to keep bot alive (Render.com/uptime tools)
+# Flask app to keep bot alive
 app = Flask(__name__)
 
 @app.route('/')
@@ -49,13 +49,28 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def owner_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Hey baby how are u..🥰")
 
+# /features command
+async def features_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        "MCQ Quiz Bot Features:\n\n"
+        "1. Send questions like:\n"
+        "   Question\n   Option1\n   Option2✅\n   Option3\n   Option4\n   Ex: Explanation (optional)\n\n"
+        "2. Send multiple questions together using blank lines.\n"
+        "3. Correct option must have ✅ symbol.\n"
+        "4. Explanation (optional) must start with 'Ex:'\n"
+        "5. All quizzes auto-posted to group.\n"
+        "6. '@Quiz_Smart' tag auto-added to explanations.\n"
+        "7. Anonymous quiz polls with correct answers.\n"
+        "8. Prefix '⟬💜⟭🌿' auto-added to each question.\n"
+    )
+
 # Process a single quiz block
 async def process_single_question(update: Update, context: ContextTypes.DEFAULT_TYPE, block: str):
     lines = [line.strip() for line in block.strip().split('\n') if line.strip()]
     if len(lines) < 3:
         return
 
-    question = lines[0]
+    question = f"⟬💜⟭🌿 {lines[0]}"
     options = []
     correct_option_id = None
     explanation = None
@@ -117,6 +132,7 @@ if __name__ == "__main__":
     app_bot.add_handler(CommandHandler("start", start))
     app_bot.add_handler(CommandHandler("help", help_command))
     app_bot.add_handler(CommandHandler("owner", owner_command))
+    app_bot.add_handler(CommandHandler("features", features_command))  # New command
     app_bot.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     app_bot.run_polling()
