@@ -5,7 +5,7 @@ from threading import Thread
 import logging
 
 # Bot Token और Owner Chat ID भरें
-BOT_TOKEN = "7592757083:AAEexFGWQLZLXNSC_RgDJ7V7_7WwmHwahYY"
+BOT_TOKEN = "7839179631:AAHOVGCumtTpFfHLglOgvQya9Ha0pSZFku0"
 OWNER_CHAT_ID = -1002105439688  # Group या Personal Chat ID
 
 # Flask app to keep bot alive (Render.com/uptime tools)
